@@ -5,6 +5,7 @@ class DatabaseError extends Error {
         public error?: any
     ) {
         super(message);
+        Object.setPrototypeOf(this, DatabaseError.prototype);
     }
 }
 
