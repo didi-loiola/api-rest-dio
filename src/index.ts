@@ -3,6 +3,7 @@ import usersRoute from './routes/users-route';
 import statusRoute from './routes/status-route';
 import errorHandler from './middlewares/error-handler-middleware';
 import authorizationRoute from './routes/authorization-route';
+import bearerAuthenticationMiddleware from './middlewares/bearer-authentication-middleware';
 
 const app = express();
 
@@ -11,7 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 
 // Configurações de Rotas
-app.use(usersRoute);
+app.use(bearerAuthenticationMiddleware, usersRoute);
 app.use(statusRoute);
 app.use(authorizationRoute)
 
@@ -19,4 +20,4 @@ app.use(authorizationRoute)
 app.use(errorHandler);
 
 // Inicialização do servidor
-app.listen(4000, ()=> console.log('Executando...'));
+app.listen(4000, ()=> console.log('Executando na porta 4000...'));
