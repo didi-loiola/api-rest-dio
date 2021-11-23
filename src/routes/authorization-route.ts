@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response, Router } from "express";
 import ForbiddenError from "../models/errors/forbidden-error-model";
-import userRepository from "../repositories/user-repository";
 import JWT from "jsonwebtoken";
 import { StatusCodes } from "http-status-codes";
 import basicAuthenticationMiddleware from "../middlewares/basic-authentication-middleware";
+import jwtAuthenticationMiddleware from "../middlewares/jwt-authentication-middleware";
 require('dotenv').config();
 
 const authorizationRoute = Router();
@@ -26,6 +26,10 @@ authorizationRoute.post('/token', basicAuthenticationMiddleware, async (req: Req
     } catch (error) {
         next(error)
     }
+})
+
+authorizationRoute.post('/token/validate', jwtAuthenticationMiddleware, (req: Request, res: Response, next:NextFunction) => {
+    res.sendStatus(StatusCodes.OK);
 })
 
 export default authorizationRoute;

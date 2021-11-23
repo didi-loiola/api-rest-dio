@@ -1,10 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import JWT from "jsonwebtoken";
 import ForbiddenError from "../models/errors/forbidden-error-model";
-import userRepository from "../repositories/user-repository";
 
-
-async function bearerAuthenticationMiddleware (req:Request, res: Response, next:NextFunction) {
+async function jwtAuthenticationMiddleware (req:Request, res: Response, next:NextFunction) {
     try {
         const authorizationHeader = req.headers['authorization'];
 
@@ -18,23 +16,26 @@ async function bearerAuthenticationMiddleware (req:Request, res: Response, next:
             throw new ForbiddenError("Tipo de autenticação inválido")
         }
 
-        const tokenPayload = JWT.verify(token, process.env.SECRET_JWT || 'secret')
-
-        if(typeof tokenPayload !== 'object' || !tokenPayload.sub) {
+        try {
+            const tokenPayload = JWT.verify(token, process.env.SECRET_JWT || 'secret')
+    
+            if(typeof tokenPayload !== 'object' || !tokenPayload.sub) {
+                throw new ForbiddenError('Token Inválido')
+            }
+    
+            const uuid = tokenPayload.sub;
+            const user = {
+                uuid: tokenPayload.sub,
+                username: tokenPayload.username
+            };
+            req.user = user;
+            next();
+        } catch (error) {
             throw new ForbiddenError('Token Inválido')
         }
-
-        const uuid = tokenPayload.sub;
-        const user = {
-            uuid: tokenPayload.sub,
-            username: tokenPayload.username
-        };
-        req.user = user;
-
-        next();
     } catch (error) {
         next(error)
     }
 }
 
-export default bearerAuthenticationMiddleware;
+export default jwtAuthenticationMiddleware;
